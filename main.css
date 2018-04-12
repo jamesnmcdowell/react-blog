@@ -1,0 +1,36 @@
+
+h1 {
+     font-family: 'Baumans', cursive;
+}
+p{
+    font-family: 'Roboto', sans-serif;
+}
+.nav-bar {
+    background-color: #b9deff
+}
+.logo {
+    width: 100px;
+}
+.react-route .blog-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 1rem; 
+    padding: 2em; 
+}
+
+.react-route .blog-list div{
+    color: red;
+    background-color: #ffdab9;
+    border-radius: 2px;
+    padding: 2em;
+}
+
+footer {
+    height: 20vh;
+    background-color: #ffb9bb;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
