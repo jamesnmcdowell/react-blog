@@ -4,7 +4,7 @@ const h = React.createElement;
 const logo = 'http://paperbackdesign.com/wp-content/uploads/2015/04/generic-logo_150ppi-600x300px.png';
 
     // let blogs = await (await fetch('http://localhost:3000/posts')).json();\
-let blogs = [
+const blogs = [
     {
         "userId": 4,
         "id": 31,
@@ -33,21 +33,12 @@ let blogs = [
 
 let removeContact = (contact, row) => {};
 
-let removeBlog = blogToDelete => {
-  console.log(`I would like to delete ${blogToDelete.title}`);
-  let { id } = blogToDelete;
-  console.log(id);
-//   await fetch(`http://localhost:3000/posts/${id}`, { method: "DELETE" });
-  blogs = blogs.filter ( blog => id !== blog.id);
 
-};
 let editBlog = (blogToEdit) => {
   blogBeingEdited = Object.assign({}, blogToEdit);
-  console.log(blogBeingEdited);
-  // // console.log(blogToEdit);
 };
 
-let EditBlogForm = blog =>
+let EditBlogForm = ({ blog, blogBeingEdited}) =>
   h("form", null, [
     h("input", {
       value: blogBeingEdited.title,
@@ -66,15 +57,15 @@ let EditBlogForm = blog =>
       }, "Save")
   ]);
 
-   class EditBlogFormState extends React.Component {
-      constructor(props) {
-        super(props);
-        this.state = { blogBeingEdited: null };
-      }
-      render() {
-        return h(EditBlogForm, Object.assign({}, this.props, this.state ))
-      }
-    }
+  //  class EditBlogFormState extends React.Component {
+  //     constructor(props) {
+  //       super(props);
+  //       this.state = { blogBeingEdited: null };
+  //     }
+  //     render() {
+  //       return h(EditBlogForm, Object.assign({}, this.props, this.state ))
+  //     }
+  //   }
 
 let updateBody = (blogToEdit, body) => {
   blogToEdit.body = body;
@@ -83,44 +74,50 @@ let updateTitle = (blogToEdit, title) => {
   blogToEdit.title = title;
 };
 
-let DeleteBlogButton = blog =>
+let DeleteBlogButton = ({ blog, removeBlog }) =>
   h("button", { onClick: () => removeBlog(blog) }, "Delete");
 
 let EditBlogButton = blog =>
   h("button", { onClick: () => editBlog(blog) }, "Edit");
 
-let BlogPost = blog =>
+let BlogPost = ({ blog, blogBeingEdited, removeBlog}) =>
   h("div", null, [
     h("h1", null, blog.title),
     h("p", null, blog.body),
     h(EditBlogButton, blog),
-    h(DeleteBlogButton, blog),
-    blogBeingEdited && blog.id === blogBeingEdited.id && h(EditBlogFormState, blog)
+    h(DeleteBlogButton, {blog, removeBlog}),
+    blogBeingEdited && blog.id === blogBeingEdited.id && h(EditBlogForm, { blog, blogBeingEdited})
   ]);
 
+class BlogPostState extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { blogBeingEdited: null };
+  }
+  render() {
+    let test = h(BlogPost, Object.assign({}, this.props, this.state));
+    // console.log('sup');
+    // console.log(test);
+    return test;
+  }
+}
+
 let saveBlog = (blogToEdit) => {
-    // let { id } = blogToEdit;
     console.log(blogBeingEdited.body);
-    // await fetch(`http://localhost:3000/posts/${blogToEdit.id}`, {
-    //   method: "PUT",
-    //   body: JSON.stringify({
-    //     // title: "foo",
-    //     body: blogBeingEdited.body
-    //   }),
-    //   headers: {
-    //     "Content-type": "application/json; charset=UTF-8"
-    //   }
-    // });
-    let blog = blogs.find(blog => blogBeingEdited.id === blogToEdit.id); 
+    let blog = blogs.find(blog => blogBeingEdited.id === blogToEdit.id);
     console.log(blog);
     Object.assign(blog, blogBeingEdited);
     blogBeingEdited = null;
-
 };
 
 
-let BlogPostList = ({ blogs }) => {
-  let vdoms = blogs.map(blog => h(BlogPost, blog));
+let BlogPostList = ({ blogs, removeBlog }) => {
+  let vdoms = blogs.map(blog => {
+    // console.log('yo'); 
+    // console.log(blog);
+    return h(BlogPostState, {blog, removeBlog})
+  });
+
   return h("div", { className: "blog-list" }, vdoms);
 };
 
@@ -139,10 +136,19 @@ class Page extends React.Component {
         super(props);
         this.state = { blogs };
     }
+  
+
 render() {
+  let removeBlog =(blogToDelete) => {
+    console.log(`I would like to delete ${blogToDelete.title}`);
+    let { id } = blogToDelete;
+    let filteredBlogs = blogs.filter(blog => id !== blog.id);
+    console.log(filteredBlogs);
+    this.setState({ blogs: filteredBlogs })
+  }
     return h("div", null, [
       h(Header, null, []),
-      h(BlogPostList, { blogs }, []),
+      h(BlogPostList, { blogs: this.state.blogs, removeBlog: removeBlog }, []),
       h(Footer, null, [])
     ]);
  }
