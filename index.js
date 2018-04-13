@@ -96,8 +96,6 @@ class BlogPostState extends React.Component {
   }
   render() {
     let test = h(BlogPost, Object.assign({}, this.props, this.state));
-    // console.log('sup');
-    // console.log(test);
     return test;
   }
 }
