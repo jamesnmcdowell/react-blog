@@ -3,21 +3,44 @@ const h = React.createElement;
 
 const logo = 'http://paperbackdesign.com/wp-content/uploads/2015/04/generic-logo_150ppi-600x300px.png';
 
-
-
 (async () => {
-    let blogs = await (await fetch('http://localhost:3000/posts')).json();
-    console.log(blogs);
+    // let blogs = await (await fetch('http://localhost:3000/posts')).json();\
+let blogs = [
+    {
+        "userId": 4,
+        "id": 31,
+        "title": "ullam ut quidem id aut vel consequuntur",
+        "body": "debitis eius sed quibusdam non quis consectetur vitae\nimpedit ut qui consequatur sed aut in\nquidem sit nostrum et maiores adipisci atque\nquaerat voluptatem adipisci repudiandae"
+    },
+    {
+        "userId": 4,
+        "id": 32,
+        "title": "doloremque illum aliquid sunt",
+        "body": "deserunt eos nobis asperiores et hic\nest debitis repellat molestiae optio\nnihil ratione ut eos beatae quibusdam distinctio maiores\nearum voluptates et aut adipisci ea maiores voluptas maxime"
+    },
+    {
+        "userId": 4,
+        "id": 33,
+        "title": "qui explicabo molestiae dolorem",
+        "body": "rerum ut et numquam laborum odit est sit\nid qui sint in\nquasi tenetur tempore aperiam et quaerat qui in\nrerum officiis sequi cumque quod"
+    },
+    {
+        "userId": 4,
+        "id": 34,
+        "title": "magnam ut rerum iure",
+        "body": "ea velit perferendis earum ut voluptatem voluptate itaque iusto\ntotam pariatur in\nnemo voluptatem voluptatem autem magni tempora minima in\nest distinctio qui assumenda accusamus dignissimos officia nesciunt nobis"
+    }
+];
 
 let blogBeingEdited = null;
 
-let removeContact = async (contact, row) => {};
+let removeContact = (contact, row) => {};
 
-let removeBlog = async blogToDelete => {
+let removeBlog = blogToDelete => {
   console.log(`I would like to delete ${blogToDelete.title}`);
   let { id } = blogToDelete;
   console.log(id);
-  await fetch(`http://localhost:3000/posts/${id}`, { method: "DELETE" });
+//   await fetch(`http://localhost:3000/posts/${id}`, { method: "DELETE" });
   blogs = blogs.filter ( blog => id !== blog.id);
   update();
 
@@ -31,6 +54,10 @@ let editBlog = (blogToEdit) => {
 
 let updateBody = (blogToEdit, body) => {
   blogToEdit.body = body;
+  update();
+};
+let updateTitle = (blogToEdit, title) => {
+  blogToEdit.title = title;
   update();
 };
 
@@ -49,21 +76,22 @@ let BlogPost = blog =>
     blogBeingEdited && blog.id === blogBeingEdited.id && h(EditBlogForm, blog)
   ]);
 
-let saveBlog = async (blogToEdit) => {
+let saveBlog = (blogToEdit) => {
     // let { id } = blogToEdit;
     console.log(blogBeingEdited.body);
-    await fetch(`http://localhost:3000/posts/${blogToEdit.id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        // title: "foo",
-        body: blogBeingEdited.body
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8"
-      }
-    });
+    // await fetch(`http://localhost:3000/posts/${blogToEdit.id}`, {
+    //   method: "PUT",
+    //   body: JSON.stringify({
+    //     // title: "foo",
+    //     body: blogBeingEdited.body
+    //   }),
+    //   headers: {
+    //     "Content-type": "application/json; charset=UTF-8"
+    //   }
+    // });
     let blog = blogs.find(blog => blogBeingEdited.id === blogToEdit.id); 
-    Object.assign(blog, blogToEdit);
+    console.log(blog);
+    Object.assign(blog, blogBeingEdited);
     blogBeingEdited = null;
     update();
 
@@ -72,12 +100,23 @@ let saveBlog = async (blogToEdit) => {
 let EditBlogForm = blog =>
   h("form", null, [
     h("input", {
+      value: blogBeingEdited.title,
+      onChange: event => updateTitle(blogBeingEdited, event.target.value)
+    }),
+    h("input", {
       value: blogBeingEdited.body,
       onChange: event => updateBody(blogBeingEdited, event.target.value)
     }),
-    h("button", { onClick: (event) => {
-        event.preventDefault();
-        saveBlog(blog) }}, "Save")
+    h(
+      "button",
+      {
+        onClick: event => {
+          event.preventDefault();
+          saveBlog(blog);
+        }
+      },
+      "Save"
+    )
   ]);
 
 let BlogPostList = ({ blogs }) => {
