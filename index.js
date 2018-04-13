@@ -3,7 +3,6 @@ const h = React.createElement;
 
 const logo = 'http://paperbackdesign.com/wp-content/uploads/2015/04/generic-logo_150ppi-600x300px.png';
 
-(async () => {
     // let blogs = await (await fetch('http://localhost:3000/posts')).json();\
 let blogs = [
     {
@@ -32,8 +31,6 @@ let blogs = [
     }
 ];
 
-let blogBeingEdited = null;
-
 let removeContact = (contact, row) => {};
 
 let removeBlog = blogToDelete => {
@@ -42,23 +39,48 @@ let removeBlog = blogToDelete => {
   console.log(id);
 //   await fetch(`http://localhost:3000/posts/${id}`, { method: "DELETE" });
   blogs = blogs.filter ( blog => id !== blog.id);
-  update();
 
 };
 let editBlog = (blogToEdit) => {
   blogBeingEdited = Object.assign({}, blogToEdit);
   console.log(blogBeingEdited);
   // // console.log(blogToEdit);
-  update();
 };
+
+let EditBlogForm = blog =>
+  h("form", null, [
+    h("input", {
+      value: blogBeingEdited.title,
+      onChange: event => updateTitle(blogBeingEdited, event.target.value)
+    }),
+    h("input", {
+      value: blogBeingEdited.body,
+      onChange: event => updateBody(blogBeingEdited, event.target.value)
+    }),
+    h("button",
+      {
+        onClick: event => {
+          event.preventDefault();
+          saveBlog(blog);
+        }
+      }, "Save")
+  ]);
+
+   class EditBlogFormState extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { blogBeingEdited: null };
+      }
+      render() {
+        return h(EditBlogForm, Object.assign({}, this.props, this.state ))
+      }
+    }
 
 let updateBody = (blogToEdit, body) => {
   blogToEdit.body = body;
-  update();
 };
 let updateTitle = (blogToEdit, title) => {
   blogToEdit.title = title;
-  update();
 };
 
 let DeleteBlogButton = blog =>
@@ -73,7 +95,7 @@ let BlogPost = blog =>
     h("p", null, blog.body),
     h(EditBlogButton, blog),
     h(DeleteBlogButton, blog),
-    blogBeingEdited && blog.id === blogBeingEdited.id && h(EditBlogForm, blog)
+    blogBeingEdited && blog.id === blogBeingEdited.id && h(EditBlogFormState, blog)
   ]);
 
 let saveBlog = (blogToEdit) => {
@@ -93,31 +115,9 @@ let saveBlog = (blogToEdit) => {
     console.log(blog);
     Object.assign(blog, blogBeingEdited);
     blogBeingEdited = null;
-    update();
 
 };
 
-let EditBlogForm = blog =>
-  h("form", null, [
-    h("input", {
-      value: blogBeingEdited.title,
-      onChange: event => updateTitle(blogBeingEdited, event.target.value)
-    }),
-    h("input", {
-      value: blogBeingEdited.body,
-      onChange: event => updateBody(blogBeingEdited, event.target.value)
-    }),
-    h(
-      "button",
-      {
-        onClick: event => {
-          event.preventDefault();
-          saveBlog(blog);
-        }
-      },
-      "Save"
-    )
-  ]);
 
 let BlogPostList = ({ blogs }) => {
   let vdoms = blogs.map(blog => h(BlogPost, blog));
@@ -133,19 +133,22 @@ let Footer = () => {
   return h("footer", {}, [h("h1", null, "footer")]);
 };
 
-let Page = ({ blogs }) =>
-  h("div", null, [
-    h(Header, null, []),
-    h(BlogPostList, { blogs }, []),
-    h(Footer, null, [])
-  ]);
 
-let update = () => {
-  ReactDOM.render(h(Page, { blogs }, []), root);
-};
+class Page extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { blogs };
+    }
+render() {
+    return h("div", null, [
+      h(Header, null, []),
+      h(BlogPostList, { blogs }, []),
+      h(Footer, null, [])
+    ]);
+ }
 
-update();
+}
 
-})()
+ReactDOM.render(h(Page, { blogs}, []), root);
 
 
